@@ -1,12 +1,10 @@
 """
-Lisez le fichier enonce.md ci-joint
-
 Ne modifiez pas ce fichier.
 """
 
 from collections import namedtuple
 
-import dictionary as db
+import sqlite as db
 
 Contact = namedtuple("Contact", ["f_name", "l_name", "tel"])  # Création d’un tuple nommé similaire à une classe
 data = None
@@ -87,7 +85,7 @@ def i_search():
     Recherche les contacts selon leur nom de famille
     """
     part_name = input("Tapez le début du nom à rechercher: ").lower()
-    lst = db.search(part_name)
+    lst = db.search(data, part_name)
     if len(lst) != 0:
         for contact in lst:
             i_print_contact(contact)
@@ -115,7 +113,7 @@ def i_delete():
         for contact in lst:
             i_print_contact(contact)
             if question("Voulez-vous supprimer ce contact ?"):
-                db.delete(contact)
+                db.delete(data, contact)
     else:
         print("Pas d’occurrence trouvée")
 
