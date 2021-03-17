@@ -29,28 +29,42 @@ def exists(data, contact):
     return None
 
 
-def findall(data:Connection) -> list[[Contact]]:
+def findall(data: Connection) -> list[[Contact]]:
     sql = """SELECT f_name,l_name, tel FROM contacts"""
-    data.row_factory = lambda cursor, row: Contact(row[0], row[1], row[2])
+    data.row_factory = lambda _, row: Contact(row[0], row[1], row[2])
     cursor = data.cursor()
     cursor.execute(sql)
-    #rows = cursor.fetchall()
-    #contacts = []
-    #for row in rows:
+    # rows = cursor.fetchall()
+    # contacts = []
+    # for row in rows:
     #    contacts.append(Contact(row[0],row[1],row[2]))
-    #return contacts
+    # return contacts
     return cursor.fetchall()
 
-def search(data, part_name):
-    return None
+
+def search(data: Connection, part_name: str) -> list[[Contact]]:
+    sql = "SELECT f_name, l_name,tel FROM contacts WHERE l_name LIKE ?"
+    data.row_factory = lambda _, row: Contact(row[0], row[1], row[2])
+    cursor = data.cursor()
+    cursor.execute(sql, (part_name + "%",))
+    return cursor.fetchall()
 
 
 def delete(data, contact):
     return None
 
 
-def update(data, old_contact, new_contact):
-    return None
+def update(data: Connection, old_contact: Contact, new_contact: Contact):
+    sql_update = """ UPDATE contacts SET f_name=?, l_name=?, tel=? WHERE id = ?"""
+    sql_query = """ SELECT id FROM contacts WHERE f_name=? AND l_name=? AND tel=?"""
+
+    data.row_factory = lambda _, row: row[0]
+
+    cursor = data.cursor()
+    cursor.execute(sql_query, old_contact)
+    old_id = cursor.fetchone()
+    cursor.execute(sql_update, (new_contact.f_name,new_contact.l_name,new_contact.tel, old_id))
+    data.commit()
 
 
 def load():
@@ -75,11 +89,11 @@ def create(data: Connection, contact: Contact) -> int:
     return cursor.lastrowid
 
 
-def read(data:Connection, id:int) -> Contact:
+def read(data: Connection, id: int) -> Contact:
     sql = """SELECT f_name,l_name,tel FROM contacts WHERE id = ?"""
-    data.row_factory = lambda cursor, row: Contact(row[0],row[1],row[2])
+    data.row_factory = lambda _, row: Contact(row[0], row[1], row[2])
     cursor = data.cursor()
-    cursor.execute(sql,(id,)) # on passe un tuple
-    #row = cursor.fetchone()
-    #return Contact(row[0],row[1],row[2])
+    cursor.execute(sql, (id,))  # on passe un tuple
+    # row = cursor.fetchone()
+    # return Contact(row[0],row[1],row[2])
     return cursor.fetchone()
